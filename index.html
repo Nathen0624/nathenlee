@@ -100,17 +100,26 @@ main{flex:999 1 560px;min-width:0;padding:20px 32px 120px;display:flex;flex-dire
 .column{border-radius:20px;padding:16px 12px 12px;display:flex;flex-direction:column;gap:10px}
 .column-head{display:flex;align-items:center;gap:10px;padding:4px 8px 6px;font-size:17px;font-weight:500}
 .item{border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:background .15s,border-color .15s}
-a.item:hover{background:rgba(24,22,21,0.75);border-color:rgba(255,255,255,0.14)}
+a.item{cursor:pointer;transition:background .15s,border-color .15s,transform .15s,box-shadow .15s}
+a.item:hover,a.item:focus-visible{background:rgba(24,22,21,0.8);border-color:rgba(143,184,255,0.45);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,0.3)}
+a.item:focus-visible,a.row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .item-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .item-name{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600}
 .item-status{font-size:12px;color:var(--muted-2);white-space:nowrap}
 .item-desc{font-size:14px;line-height:1.5;color:#e2dbd4}
 .item-meta{font-size:13px;color:var(--muted-2)}
+.item-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-top:2px;padding-top:12px;border-top:1px solid var(--line)}
+.open{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--accent);white-space:nowrap}
+.open svg{transition:transform .15s}
+a.item:hover .open svg,a.row:hover .open svg{transform:translate(2px,-2px)}
+.soon{font-size:12px;color:var(--muted-2);white-space:nowrap}
+.hint{font-size:13px;color:var(--muted)}
 
 /* List */
 .list{border-radius:20px;padding:8px}
 .row{display:flex;flex-wrap:wrap;align-items:center;gap:16px;padding:14px 16px;border-radius:12px}
-a.row:hover{background:rgba(255,255,255,0.05)}
+a.row:hover{background:rgba(255,255,255,0.07)}
+.row .go{flex:0 0 auto}
 .row .t{flex:1 1 200px;font-size:15px;font-weight:600}
 .row .d{flex:2 1 260px;font-size:14px;color:var(--text-2)}
 .row .s{flex:0 0 110px;font-size:13px;color:var(--muted-2);text-align:right}
@@ -252,6 +261,7 @@ footer{padding:24px 0 0;font-size:13px;color:var(--muted-2)}
         <button type="button" id="viewBoard" aria-pressed="true">Board</button>
         <button type="button" id="viewList" aria-pressed="false">List</button>
       </div>
+      <span class="hint">Click any project to open it</span>
     </div>
     <div id="board" class="board"></div>
     <div id="list" class="list col" hidden></div>
@@ -320,6 +330,8 @@ const open = (it, cls) => it.href
   ? `<a class="${cls}" href="${esc(it.href)}" target="_blank" rel="noopener">`
   : `<div class="${cls}">`;
 const close = it => it.href ? '</a>' : '</div>';
+const ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
+const cta = it => it.href ? `<span class="open">Open project${ARROW}</span>` : '<span class="soon">Link coming soon</span>';
 
 let view = 'board';
 let query = '';
@@ -339,7 +351,7 @@ function render() {
       ${c.items.map(it => `${open(it, 'item card')}
         <span class="item-top"><span class="item-name"><span class="chip" style="background:${it.chip}">${esc(it.ini)}</span>${esc(it.title)}</span><span class="item-status">${esc(it.status)}</span></span>
         <span class="item-desc">${esc(it.desc)}</span>
-        <span class="item-meta">${esc(it.meta)}</span>
+        <span class="item-foot"><span class="item-meta">${esc(it.meta)}</span>${cta(it)}</span>
       ${close(it)}`).join('')}
     </div>`).join('');
 
@@ -348,6 +360,7 @@ function render() {
     <span class="t">${esc(it.title)}</span>
     <span class="d">${esc(it.desc)}</span>
     <span class="s">${esc(it.status)}</span>
+    <span class="go">${it.href ? `<span class="open">Open${ARROW}</span>` : '<span class="soon">Coming soon</span>'}</span>
   ${close(it)}`).join('');
 
   document.getElementById('board').hidden = view !== 'board' || !all.length;
